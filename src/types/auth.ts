@@ -15,3 +15,15 @@ export interface LoginValues {
   pId?: string;
   password: string;
 }
+
+export interface User
+  extends Omit<RegisterValues, 'confirmPassword' | 'password'> {
+  id: string;
+  virtualBalance: number;
+}
+
+export interface AuthInitialState {
+  registerLoading: boolean;
+  loginLoading: boolean;
+  authedUser: User | null;
+}

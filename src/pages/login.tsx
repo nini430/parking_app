@@ -1,12 +1,18 @@
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { toast } from 'react-hot-toast';
+
 import FormInput from '../components/shared/form-input';
 import { useState } from 'react';
 import { FirstField, LoginValues } from '../types/auth';
 import { loginValidationSchema } from '../yup-validation/login';
+import { useAppDispatch, useAppSelector } from '../store/store';
+import { loginUser } from '../store/authReducer';
 
 const Login = () => {
+  const dispatch = useAppDispatch();
+  const { loginLoading } = useAppSelector((state) => state.auth);
   const [firstField, setFirstField] = useState<FirstField>('email');
   const form = useForm<LoginValues>({
     defaultValues: {
@@ -19,7 +25,14 @@ const Login = () => {
   });
   const { isSubmitting, isValid, errors } = form.formState;
   const onSubmit = async (values: LoginValues) => {
-    console.log(values);
+    dispatch(
+      loginUser({
+        input: values,
+        onSuccess: () => {
+          toast.success('User logged in');
+        },
+      })
+    );
   };
   return (
     <div className="flex justify-center items-center h-[calc(100vh-80px)]">
@@ -73,7 +86,7 @@ const Login = () => {
           </Link>
         </span>
         <button
-          disabled={isSubmitting || !isValid}
+          disabled={isSubmitting || !isValid || loginLoading}
           className="border bg-main-green p-2 rounded-md text-white transition hover:opacity-75"
         >
           Login

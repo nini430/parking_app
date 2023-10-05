@@ -1,12 +1,17 @@
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-
 import { Link } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
+
 import FormInput from '../components/shared/form-input';
 import { RegisterValues } from '../types/auth';
 import { registerValidationSchema } from '../yup-validation/register';
+import { useAppDispatch, useAppSelector } from '../store/store';
+import { registerUser } from '../store/authReducer';
 
 const RegisterPage = () => {
+  const dispatch = useAppDispatch();
+  const { registerLoading } = useAppSelector((state) => state.auth);
   const form = useForm<RegisterValues>({
     defaultValues: {
       firstName: '',
@@ -23,7 +28,14 @@ const RegisterPage = () => {
 
   const { isSubmitting, isValid, errors } = form.formState;
   const onSubmit = async (values: RegisterValues) => {
-    console.log(values);
+    dispatch(
+      registerUser({
+        input: { ...values },
+        onSuccess: () => {
+          toast.success('user_register_success');
+        },
+      })
+    );
   };
   return (
     <div className="flex justify-center items-center h-[calc(100vh-80px)]">
@@ -86,7 +98,7 @@ const RegisterPage = () => {
           </Link>
         </span>
         <button
-          disabled={isSubmitting || !isValid}
+          disabled={isSubmitting || !isValid || registerLoading}
           className="w-full border rounded-md p-2 transition hover:opacity-75 bg-main-green text-white"
         >
           Register
